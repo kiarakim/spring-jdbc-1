@@ -2,7 +2,7 @@ package hello.jdbc.service;
 
 import hello.jdbc.domain.Member;
 import hello.jdbc.repository.MemberRepository;
-import hello.jdbc.repository.MemberRepositoryV4_1;
+import hello.jdbc.repository.MemberRepositoryV4_2;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +36,27 @@ class MemberServiceV4Test {
     private MemberRepository memberRepository;
     @Autowired
     private MemberServiceV4 memberService;
+
+    @TestConfiguration
+    static class TestConfig {
+
+        private final DataSource dataSource;
+
+        public TestConfig(DataSource dataSource) {
+            this.dataSource = dataSource;
+        }
+
+        @Bean
+        MemberRepository memberRepository() {
+//            return new MemberRepositoryV4_1(dataSource);
+            return new MemberRepositoryV4_2(dataSource);
+        }
+
+        @Bean
+        MemberServiceV4 memberServiceV4() {
+            return new MemberServiceV4(memberRepository());
+        }
+    }
 
     @AfterEach
     void after() {
@@ -99,25 +120,5 @@ class MemberServiceV4Test {
         //memberA의 돈이 롤백 되어야함
         assertThat(findMemberA.getMoney()).isEqualTo(10000);
         assertThat(findMemberEx.getMoney()).isEqualTo(10000);
-    }
-
-    @TestConfiguration
-    static class TestConfig {
-
-        private final DataSource dataSource;
-
-        public TestConfig(DataSource dataSource) {
-            this.dataSource = dataSource;
-        }
-
-        @Bean
-        MemberRepository memberRepository() {
-            return new MemberRepositoryV4_1(dataSource);
-        }
-
-        @Bean
-        MemberServiceV4 memberServiceV4() {
-            return new MemberServiceV4(memberRepository());
-        }
     }
 }
