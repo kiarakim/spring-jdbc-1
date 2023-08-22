@@ -53,9 +53,11 @@ class MemberServiceV3_1Test {
         Member memberB = new Member(MEMBER_B, 10000);
         memberRepository.save(memberA);
         memberRepository.save(memberB);
+
         //when
         memberService.accountTransfer(memberA.getMemberId(),
                 memberB.getMemberId(), 2000);
+
         //then
         Member findMemberA = memberRepository.findById(memberA.getMemberId());
         Member findMemberB = memberRepository.findById(memberB.getMemberId());
@@ -71,15 +73,20 @@ class MemberServiceV3_1Test {
         Member memberEx = new Member("ex", 10000);
         memberRepository.save(memberA);
         memberRepository.save(memberEx);
+
         //when
         assertThatThrownBy(() ->
                 memberService.accountTransfer(memberA.getMemberId(), memberEx.getMemberId(),
                         2000))
                 .isInstanceOf(IllegalStateException.class);
+
         //then
         Member findMemberA = memberRepository.findById(memberA.getMemberId());
         Member findMemberEx =
                 memberRepository.findById(memberEx.getMemberId());
-        //memberA의 돈이 롤백 되어야함 assertThat(findMemberA.getMoney()).isEqualTo(10000); assertThat(findMemberEx.getMoney()).isEqualTo(10000);
+
+        //memberA의 돈이 롤백 되어야함
+        assertThat(findMemberA.getMoney()).isEqualTo(10000);
+        assertThat(findMemberEx.getMoney()).isEqualTo(10000);
     }
 }
